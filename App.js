@@ -32,10 +32,10 @@ app.post("/api/posts", (req, res) => {
     title: req.body.title,
     content: req.body.content,
   });
-  post.save().then(data => {
+  post.save().then((data) => {
     res.status(201).json({
       message: "Post added successfully",
-      postId: data._id
+      postId: data._id,
     });
   });
 });
@@ -46,10 +46,10 @@ app.put("/api/posts/:id", (req, res) => {
     title: req.body.title,
     content: req.body.content,
   });
-  Post.updateOne({_id: req.params.id}, post).then(data => {
+  Post.updateOne({ _id: req.params.id }, post).then((data) => {
     res.json({
       message: "Post updated successfully",
-      postId: data._id
+      postId: data._id,
     });
   });
 });
@@ -60,6 +60,19 @@ app.get("/api/posts", (req, res) => {
       message: "Posts fetched successfully!",
       posts: posts,
     });
+  });
+});
+
+app.get("/api/posts/:id", (req, res) => {
+  Post.findById(req.params.id).then((post) => {
+    if (post) {
+      res.status(200).json({
+        message: "Post fetched successfully!",
+        post: post,
+      });
+    } else {
+      res.status(401).json({ message: "Post not found" });
+    }
   });
 });
 
