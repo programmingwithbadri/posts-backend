@@ -1,7 +1,15 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const Post = require("./models/post");
+
+const mongoose = require("mongoose");
 
 const app = express();
+
+mongoose
+  .connect("mongodb://badri:12td0426@ds239967.mlab.com:39967/heroku_fb2tpnzs")
+  .then(() => console.log("Connected to MongoDb.."))
+  .catch(() => console.log("Connection to MongoDb failed.."));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -20,29 +28,22 @@ app.use((req, res, next) => {
 });
 
 app.post("/api/posts", (req, res) => {
-  const post = req.body;
-  console.log(post);
+  const post = new Post({
+    title: req.body.title,
+    content: req.body.content
+  });
+  post.save();
   res.status(201).json({
-    message: 'Post added successfully'
+    message: "Post added successfully",
   });
 });
 
 app.get("/api/posts", (req, res) => {
-  const posts = [
-    {
-      id: "fadf12421l",
-      title: "First server-side post",
-      content: "This is coming from the server"
-    },
-    {
-      id: "ksajflaj132",
-      title: "Second server-side post",
-      content: "This is coming from the server!"
-    }
-  ];
-  res.status(200).json({
-    message: "Posts fetched successfully!",
-    posts: posts
+  Post.find().then((posts) => {
+    res.status(200).json({
+      message: "Posts fetched successfully!",
+      posts: posts,
+    });
   });
 });
 
