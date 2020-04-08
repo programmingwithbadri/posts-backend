@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 app.post("/api/posts", (req, res) => {
   const post = new Post({
     title: req.body.title,
-    content: req.body.content
+    content: req.body.content,
   });
   post.save();
   res.status(201).json({
@@ -43,6 +43,14 @@ app.get("/api/posts", (req, res) => {
     res.status(200).json({
       message: "Posts fetched successfully!",
       posts: posts,
+    });
+  });
+});
+
+app.delete("/api/posts/:id", (req, res) => {
+  Post.deleteOne({ _id: req.params.id }).then(() => {
+    res.status(200).json({
+      message: "Posts deleted successfully!",
     });
   });
 });
