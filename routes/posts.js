@@ -27,30 +27,29 @@ const storage = multer.diskStorage({
   },
 });
 
-router.post("", multer({storage: storage}).single("image"), (req, res) => {
-  const url = req.protocol + '://' + req.get("host");
+router.post("", multer({ storage: storage }).single("image"), (req, res) => {
+  const url = req.protocol + "://" + req.get("host");
   const post = new Post({
     title: req.body.title,
     content: req.body.content,
-    imagePath: url + "/images/" + req.file.filename
-
+    imagePath: url + "/images/" + req.file.filename,
   });
-  post.save().then(createdPost => {
+  post.save().then((createdPost) => {
     res.status(201).json({
       message: "Post added successfully",
       post: {
         ...createdPost,
-        id: createdPost._id
-      }
+        id: createdPost._id,
+      },
     });
   });
 });
 
-router.put("/:id",multer({storage: storage}).single("image"), (req, res) => {
+router.put("/:id", multer({ storage: storage }).single("image"), (req, res) => {
   let imagePath = req.body.imagePath;
 
-  if(req.file) {
-    const url = req.protocol + '://' + req.get("host");
+  if (req.file) {
+    const url = req.protocol + "://" + req.get("host");
     imagePath = url + "/images/" + req.file.filename;
   }
 
@@ -58,7 +57,7 @@ router.put("/:id",multer({storage: storage}).single("image"), (req, res) => {
     _id: req.params.id,
     title: req.body.title,
     content: req.body.content,
-    imagePath
+    imagePath,
   });
   Post.updateOne({ _id: req.params.id }, post).then((data) => {
     res.json({
@@ -69,18 +68,25 @@ router.put("/:id",multer({storage: storage}).single("image"), (req, res) => {
 });
 
 router.get("", (req, res) => {
-  const { pageSize, currentPage } = +req.query;
-  const postQuery = Post.find()
-  if(pageSize && currentPage) {
-    postQuery.skip(pageSize * (currentPage - 1))
-    .limit(pageSize)
-  }   
-  postQuery.find().then((posts) => {
-    res.status(200).json({
-      message: "Posts fetched successfully!",
-      posts: posts,
+  const pageSize = +req.query.pageSize;
+  const currentPage = +req.query.page;
+  const postQuery = Post.find();
+  let fetchedPosts;
+  if (pageSize && currentPage) {
+    postQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
+  }
+  postQuery
+    .then(documents => {
+      fetchedPosts = documents;
+      return Post.count();
+    })
+    .then(count => {
+      res.status(200).json({
+        message: "Posts fetched successfully!",
+        posts: fetchedPosts,
+        maxPosts: count
+      });
     });
-  });
 });
 
 router.get("/:id", (req, res) => {
