@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const app = express();
 
 const postsRoutes = require("./routes/posts");
+const userRoutes = require("./routes/user");
 
 mongoose
   .connect("mongodb://badri:12td0426@ds239967.mlab.com:39967/heroku_fb2tpnzs")
@@ -30,5 +31,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/posts", postsRoutes);
+
+app.use("/api/user", userRoutes);
 
 module.exports = app;
